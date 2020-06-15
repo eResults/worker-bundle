@@ -3,43 +3,40 @@
 namespace Riverline\WorkerBundle\DependencyInjection;
 
 use PHPUnit\Framework\TestCase;
-use \Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * Class RiverlineWorkerExtensionTest
- * @package Riverline\WorkerBundle\DependencyInjection
- */
 class RiverlineWorkerExtensionTest extends TestCase
 {
-    public function testLoad()
+    public function testServiceConstruction()
     {
-        $containerBuilder = new ContainerBuilder();
-        $config = array(
-            'riverline_worker' => array(
-                'providers' => array(
-                    'semaphore' => array(
-                        'class'   => 'Riverline\WorkerBundle\Provider\Semaphore',
-                    )
-                ),
-                'queues' => array(
-                    'test' => array(
-                        'provider' => 'semaphore',
-                        'name'     => 'test'
-                    )
-                )
-            )
-        );
+        $container = new ContainerBuilder();
+        $config = [
+            'riverline_worker' => [
+                'providers' => [
+                    'mock' => [
+                        'class' => 'Riverline\WorkerBundle\Provider\Mockup',
+                    ],
+                ],
+                'queues' => [
+                    'test' => [
+                        'provider' => 'mock',
+                        'name' => 'test',
+                    ],
+                ],
+            ],
+        ];
 
         $extension = new RiverlineWorkerExtension();
+        $extension->load($config, $container);
 
-        $extension->load($config, $containerBuilder);
+        $this->assertInstanceOf(
+            'Riverline\WorkerBundle\Provider\Mockup',
+            $container->get('riverline_worker.provider.mock')
+        );
 
-        $provider = $containerBuilder->get('riverline_worker.provider.semaphore');
-
-        $this->assertInstanceOf('Riverline\WorkerBundle\Provider\Semaphore', $provider);
-
-        $queue = $containerBuilder->get('riverline_worker.queue.test');
-
-        $this->assertInstanceOf('Riverline\WorkerBundle\Queue\Queue', $queue);
+        $this->assertInstanceOf(
+            'Riverline\WorkerBundle\Queue\Queue',
+            $container->get('riverline_worker.queue.test')
+        );
     }
 }

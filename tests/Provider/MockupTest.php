@@ -15,14 +15,14 @@ class MockupTest extends TestCase
      */
     private $provider;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->provider = new Mockup();
     }
 
     public function testPutArray()
     {
-        $this->provider->put('test', array('name' => 'Romain'));
+        $this->provider->put('test', ['workload' => 'heavy']);
     }
 
     public function testCount()
@@ -36,6 +36,6 @@ class MockupTest extends TestCase
     {
         $workload = $this->provider->get('test');
 
-        $this->assertSame(array('name' => 'Romain'), $workload);
+        $this->assertSame(['workload' => 'heavy'], $workload);
     }
 }

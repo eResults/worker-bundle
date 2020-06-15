@@ -4,89 +4,82 @@ namespace Riverline\WorkerBundle\Provider;
 
 use PHPUnit\Framework\TestCase;
 use Riverline\WorkerBundle\Provider\File as FileProvider;
+use Riverline\WorkerBundle\Queue\Queue;
 
-/**
- * Class FileTest
- * @package Riverline\WorkerBundle\Provider
- */
 class FileTest extends TestCase
 {
+    private FileProvider $provider;
 
-    /**
-     * @var \Riverline\WorkerBundle\Provider\File
-     */
-    private $provider;
-
-    public function setUp()
+    public function setUp(): void
     {
         $this->provider = new FileProvider();
     }
 
     public function testCreateQueue()
     {
-        $newQueue = $this->provider->createQueue("RiverlineWorkerBundleTest_file_create");
+        $newQueue = $this->provider->createQueue('WorkerBundleTest_file_create');
 
-        $this->assertTrue($newQueue instanceof \Riverline\WorkerBundle\Queue\Queue);
+        $this->assertTrue($newQueue instanceof Queue);
     }
 
     public function testPutArray()
     {
-        $this->provider->put("RiverlineWorkerBundleTest_file_create", array('name' => 'Romain'));
+        $this->provider->put('WorkerBundleTest_file_create', ['workload' => 'heavy']);
     }
 
     public function testCount()
     {
-        $count = $this->provider->count("RiverlineWorkerBundleTest_file_create");
+        $count = $this->provider->count('WorkerBundleTest_file_create');
 
         $this->assertEquals(1, $count);
     }
 
     public function testGetArray()
     {
-        $workload = $this->provider->get("RiverlineWorkerBundleTest_file_create");
+        $workload = $this->provider->get('WorkerBundleTest_file_create');
 
-        $this->assertSame(array('name' => 'Romain'), $workload);
+        $this->assertSame(['workload' => 'heavy'], $workload);
     }
 
     public function testMultiPut()
     {
-        $workloads = array();
-        for($i = 0 ; $i < 10 ; $i++) {
-            $workloads[] = "workload$i";
+        $workloads = [];
+        for ($i = 0; $i < 10; $i++) {
+            $workloads[] = 'workload$i';
         }
 
-        $this->provider->multiPut("RiverlineWorkerBundleTest_file_create", $workloads);
+        $this->provider->multiPut('WorkerBundleTest_file_create', $workloads);
 
         sleep(5);
 
-        $count = $this->provider->count("RiverlineWorkerBundleTest_file_create");
+        $count = $this->provider->count('WorkerBundleTest_file_create');
 
         $this->assertEquals(10, $count);
     }
 
     public function testDeleteQueue()
     {
-        $deleted = $this->provider->deleteQueue("RiverlineWorkerBundleTest_file_create");
+        $deleted = $this->provider->deleteQueue('WorkerBundleTest_file_create');
 
         $this->assertTrue($deleted);
     }
 
     public function testListQueues()
     {
-        $this->provider->createQueue("RiverlineWorkerBundleTest_file_listqueue1");
-        $this->provider->createQueue("RiverlineWorkerBundleTest_file_listqueue2");
+        $this->provider->createQueue('WorkerBundleTest_file_listqueue1');
+        $this->provider->createQueue('WorkerBundleTest_file_listqueue2');
 
-        $queues = $this->provider->listQueues("RiverlineWorkerBundleTest");
+        $queues = $this->provider->listQueues('WorkerBundleTest');
 
         $this->assertEquals(2, count($queues));
 
-        $this->provider->deleteQueue("RiverlineWorkerBundleTest_file_listqueue1");
-        $this->provider->deleteQueue("RiverlineWorkerBundleTest_file_listqueue2");
+        $this->provider->deleteQueue('WorkerBundleTest_file_listqueue1');
+        $this->provider->deleteQueue('WorkerBundleTest_file_listqueue2');
     }
 
     public function testQueueExists()
     {
-        $queueName = "RiverlineWorkerBundleTest_file_queue1";
+        $queueName = 'WorkerBundleTest_file_queue1';
         $this->provider->createQueue($queueName);
 
         $queueExists = $this->provider->queueExists($queueName);
@@ -94,7 +87,7 @@ class FileTest extends TestCase
 
         $this->provider->deleteQueue($queueName);
 
-        $queueNotExists = $this->provider->queueExists("RiverlineWorkerBundleTest_file_queueX");
+        $queueNotExists = $this->provider->queueExists('WorkerBundleTest_file_queueX');
         $this->assertFalse($queueNotExists);
     }
 

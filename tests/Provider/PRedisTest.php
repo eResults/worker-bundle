@@ -3,6 +3,7 @@
 namespace Riverline\WorkerBundle\Provider;
 
 use PHPUnit\Framework\TestCase;
+use Riverline\WorkerBundle\Queue\Queue;
 
 /**
  * Class PRedisTest
@@ -10,30 +11,23 @@ use PHPUnit\Framework\TestCase;
  */
 class PRedisTest extends TestCase
 {
-    /**
-     * @var \Riverline\WorkerBundle\Queue\Queue
-     */
-    private $queue;
+    private Queue $queue;
 
-    /**
-     *
-     */
-    public function setUp()
+    public function setUp(): void
     {
-        // clean
-        $this->queue = new \Riverline\WorkerBundle\Queue\Queue(
+        $this->queue = new Queue(
             'Test',
-            new PRedis(array(
-                'host' => "redis"
-            ))
+            new PRedis([
+                'host' => '127.0.0.1',
+            ])
         );
 
-        $this->markTestSkipped("Tests should be fixed");
+        $this->markTestSkipped('Tests should be fixed');
     }
 
     public function testPutArray()
     {
-        $this->queue->put(array('name' => 'Romain'));
+        $this->queue->put(['workload' => 'heavy']);
     }
 
     public function testCount()
@@ -47,7 +41,7 @@ class PRedisTest extends TestCase
     {
         $workload = $this->queue->get();
 
-        $this->assertSame(array('name' => 'Romain'), $workload);
+        $this->assertSame(['workload' => 'heavy'], $workload);
     }
 
     public function testTimeout()

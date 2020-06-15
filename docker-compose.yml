@@ -8,7 +8,6 @@ services:
       - redis
       - aws
       - activemq
-      - gearman
     volumes:
       - .:/usr/src/app
     working_dir: /usr/src/app
@@ -21,18 +20,17 @@ services:
     image: localstack/localstack
     environment:
       - SERVICES=sqs
-      - HOSTNAME_EXTERNAL=aws
+      - HOSTNAME_EXTERNAL=127.0.0.1
+    ports:
+      - 4566:4566
+      - 4576:4576
 
   activemq:
     image: webcenter/activemq:latest
     ports:
       - 8161:8161
+      - 61613:61613
     environment:
       - ACTIVEMQ_USERS_USER=password
     volumes:
       - ./docker/activemq/activemq.xml:/opt/activemq/conf/activemq.xml
-
-  gearman:
-    image: artefactual/gearmand:latest
-    ports:
-      - 4730:4730
