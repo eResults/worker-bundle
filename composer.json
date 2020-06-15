@@ -1,7 +1,7 @@
 {
     "name":"riverline/worker-bundle",
-    "description":"Symfony2 Bundle to use queue with workers",
-    "keywords":["worker", "queue", "bundle", "symfony2"],
+    "description":"Symfony Bundle to use queue with workers",
+    "keywords":["worker", "queue", "bundle", "symfony"],
     "type":"library",
     "license":"MIT",
     "authors":[
@@ -18,24 +18,23 @@
             "homepage":"http://www.riverline.fr"
         }
     ],
-    "homepage": "https://github.com/Riverline/worker-bundle",
+    "homepage": "https://github.com/eresults/worker-bundle",
     "require":{
         "php":                          ">=5.6",
         "ext-zlib":                     "*",
-        "symfony/console":              "^2.0",
-        "symfony/dependency-injection": "^2.0",
-        "symfony/config":               "^2.0",
-        "symfony/http-kernel":          "^2.0"
+        "symfony/console":              "^4.0",
+        "symfony/dependency-injection": "^4.0",
+        "symfony/config":               "^4.0",
+        "symfony/http-kernel":          "^4.0"
     },
     "suggest": {
-        "amazonwebservices/aws-sdk-for-php": "^1.0",
-        "aws/aws-sdk-php":                   "^2.0",
+        "aws/aws-sdk-php":                   "^3.0",
         "predis/predis":                     "^1.0",
         "stomp-php/stomp-php":               "^4.0"
     },
     "require-dev": {
-        "phpunit/phpunit":     "^4.8",
-        "aws/aws-sdk-php":     "^2.8",
+        "phpunit/phpunit":     "^9.0",
+        "aws/aws-sdk-php":     "^3.142",
         "predis/predis":       "^1.1",
         "stomp-php/stomp-php": "^4.3"
     },
