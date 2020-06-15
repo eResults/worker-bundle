@@ -2,22 +2,15 @@
 
 namespace Riverline\WorkerBundle\DependencyInjection;
 
+use Riverline\WorkerBundle\Queue\Queue;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
-use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
-/**
- * This is the class that loads and manages your bundle configuration
- *
- * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
- */
 class RiverlineWorkerExtension extends Extension
 {
-    /**
-     * {@inheritDoc}
-     */
+    /** @inheritDoc */
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
@@ -25,21 +18,28 @@ class RiverlineWorkerExtension extends Extension
 
         if (isset($config['providers'])) {
             foreach ($config['providers'] as $id => $provider) {
+                $definition = new Definition($provider['class'], $provider['arguments']);
+                $definition->setPublic(true);
+
                 $container->setDefinition(
                     $this->getAlias().'.provider.'.$id,
-                    new Definition($provider['class'], $provider['arguments'])
+                    $definition
                 );
             }
         }
 
         if (isset($config['queues'])) {
             foreach ($config['queues'] as $id => $queue) {
+                $definition = new Definition(Queue::class, [
+                    $queue['name'],
+                    new Reference($this->getAlias().'.provider.'.$queue['provider']),
+                ]);
+
+                $definition->setPublic(true);
+
                 $container->setDefinition(
                     $this->getAlias().'.queue.'.$id,
-                    new Definition('Riverline\WorkerBundle\Queue\Queue', array(
-                        $queue['name'],
-                        new Reference($this->getAlias().'.provider.'.$queue['provider'])
-                    ))
+                    $definition
                 );
             }
         }

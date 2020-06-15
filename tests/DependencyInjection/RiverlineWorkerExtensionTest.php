@@ -29,6 +29,8 @@ class RiverlineWorkerExtensionTest extends TestCase
         $extension = new RiverlineWorkerExtension();
         $extension->load($config, $container);
 
+        $container->compile();
+
         $this->assertInstanceOf(
             'Riverline\WorkerBundle\Provider\Mockup',
             $container->get('riverline_worker.provider.mock')

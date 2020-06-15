@@ -5,12 +5,15 @@ namespace Riverline\WorkerBundle\Provider;
 use Aws\Sdk;
 use Aws\Sqs\SqsClient;
 use Aws\Sqs\Exception\SqsException;
+use Exception;
+use LogicException;
 use Riverline\WorkerBundle\Queue\Queue;
+use RuntimeException;
 
-class AwsSQSv3 extends AbstractBaseProvider
+class AwsSQS extends AbstractBaseProvider
 {
     /**
-     * @var \Aws\Sqs\SqsClient;
+     * @var SqsClient;
      */
     protected $sqs;
 
@@ -22,7 +25,7 @@ class AwsSQSv3 extends AbstractBaseProvider
     public function __construct($awsConfiguration)
     {
         if (!version_compare(Sdk::VERSION, "3.0.0", ">=")) {
-            throw new \LogicException("Can't find AWS SDK >= 3.0.0");
+            throw new LogicException("Can't find AWS SDK >= 3.0.0");
         }
 
         $this->sqs = new SqsClient($awsConfiguration);
@@ -176,7 +179,7 @@ class AwsSQSv3 extends AbstractBaseProvider
             if (md5($workload['Body']) == $workload['MD5OfBody']) {
                 return unserialize(gzuncompress(base64_decode($workload['Body'])));
             } else {
-                throw new \RuntimeException('Corrupted response');
+                throw new RuntimeException('Corrupted response');
             }
         }
 
@@ -185,8 +188,9 @@ class AwsSQSv3 extends AbstractBaseProvider
 
     /**
      * @param string $queueName
-     * @throws \Aws\Sqs\Exception\SqsException|\Exception
+     *
      * @return string AWS queue url
+     * @throws \Aws\Sqs\Exception\SqsException|Exception
      */
     private function getQueueUrl($queueName)
     {
