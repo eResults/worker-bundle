@@ -1,8 +1,8 @@
 <?php
 
-namespace Riverline\WorkerBundle\Provider;
+namespace eResults\WorkerBundle\Provider;
 
-use Riverline\WorkerBundle\Queue\Queue;
+use eResults\WorkerBundle\Queue\Queue;
 
 class Mock implements ProviderInterface
 {

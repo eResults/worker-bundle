@@ -1,8 +1,8 @@
 <?php
 
-namespace Riverline\WorkerBundle\Queue;
+namespace eResults\WorkerBundle\Queue;
 
-use Riverline\WorkerBundle\Provider\ProviderInterface;
+use eResults\WorkerBundle\Provider\ProviderInterface;
 
 class Queue
 {

@@ -1,13 +1,13 @@
 <?php
 
-namespace Riverline\WorkerBundle\Provider;
+namespace eResults\WorkerBundle\Provider;
 
 use Aws\Sdk;
 use Aws\Sqs\SqsClient;
 use Aws\Sqs\Exception\SqsException;
 use Exception;
 use LogicException;
-use Riverline\WorkerBundle\Queue\Queue;
+use eResults\WorkerBundle\Queue\Queue;
 use RuntimeException;
 
 class AwsSQS extends Provider

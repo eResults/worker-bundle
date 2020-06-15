@@ -1,6 +1,6 @@
 <?php
 
-namespace Riverline\WorkerBundle\Provider;
+namespace eResults\WorkerBundle\Provider;
 
 use PHPUnit\Framework\TestCase;
 

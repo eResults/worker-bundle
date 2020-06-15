@@ -1,21 +1,17 @@
 {
-    "name":"riverline/worker-bundle",
+    "name":"eresults/worker-bundle",
     "description":"Symfony Bundle to use queue with workers",
     "keywords":["worker", "queue", "bundle", "symfony"],
     "type":"library",
     "license":"MIT",
     "authors":[
         {
-            "name":"Romain Cambien",
-            "email":"romain@riverline.fr"
+            "name":"Niels Janssen",
+            "email":"nielsjanssen@eresults.nl"
         },
         {
-            "name":"Sebastien Porati",
-            "email":"sebastien@riverline.fr"
-        },
-        {
-            "name":"Riverline",
-            "homepage":"http://www.riverline.fr"
+            "name":"eResults",
+            "homepage":"https://eresults.nl"
         }
     ],
     "homepage": "https://github.com/eresults/worker-bundle",
@@ -36,12 +32,12 @@
     },
     "autoload":{
         "psr-4":{
-            "Riverline\\WorkerBundle\\": "src/"
+            "eResults\\WorkerBundle\\": "src/"
         }
     },
     "autoload-dev":{
         "psr-4":{
-            "Riverline\\WorkerBundle\\": "tests/"
+            "eResults\\WorkerBundle\\": "tests/"
         }
     }
 }

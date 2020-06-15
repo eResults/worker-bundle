@@ -1,9 +1,9 @@
 <?php
 
-namespace Riverline\WorkerBundle\Provider;
+namespace eResults\WorkerBundle\Provider;
 
 use PHPUnit\Framework\TestCase;
-use Riverline\WorkerBundle\Queue\Queue;
+use eResults\WorkerBundle\Queue\Queue;
 
 class AwsSQSTest extends TestCase
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Riverline\WorkerBundle\Provider;
+namespace eResults\WorkerBundle\Provider;
 
-use Riverline\WorkerBundle\Exception\NotImplementedFeatureException;
+use eResults\WorkerBundle\Exception\NotImplementedFeatureException;
 
 abstract class Provider implements ProviderInterface
 {

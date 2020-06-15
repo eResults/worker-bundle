@@ -1,6 +1,6 @@
 <?php
 
-namespace Riverline\WorkerBundle\Exception;
+namespace eResults\WorkerBundle\Exception;
 
 class QueueException extends \Exception
 {

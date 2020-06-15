@@ -1,14 +1,14 @@
 <?php
 
-namespace Riverline\WorkerBundle\DependencyInjection;
+namespace eResults\WorkerBundle\DependencyInjection;
 
-use Riverline\WorkerBundle\Queue\Queue;
+use eResults\WorkerBundle\Queue\Queue;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
-class RiverlineWorkerExtension extends Extension
+class eResultsWorkerExtension extends Extension
 {
     /** @inheritDoc */
     public function load(array $configs, ContainerBuilder $container)

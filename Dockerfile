@@ -1,6 +1,6 @@
 FROM php:5-cli
 
-MAINTAINER Riverline
+MAINTAINER eResults
 
 # Install composer
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \

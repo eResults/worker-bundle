@@ -1,36 +1,25 @@
 # README
 
-[![Build Status](https://secure.travis-ci.org/rcambien/riverline-worker-bundle.png)](http://travis-ci.org/rcambien/riverline-worker-bundle)
+## What is eResults\WorkerBundle
 
-## What is Riverline\WorkerBundle
-
-``Riverline\WorkerBundle`` add abstraction to queue providers and allow to create Workers to consume queue workload.
+``eResults\WorkerBundle`` add abstraction to queue providers and allow to create Workers to consume queue workload.
 
 ## Requirements
 
-* PHP 5.3
-* Symfony 2.x
+* PHP >=7.4
+* Symfony ^4.4|^5.0
 
 ## Installation
 
-``Riverline\WorkerBundle`` is compatible with composer and any prs-0 autoloader
+``eResults\WorkerBundle`` is compatible with composer and any prs-0 autoloader
 
 ## Configuration
 
 ```yml
-riverline_worker:
+eresults_worker:
     providers:
-        predis:
-            class: Riverline\WorkerBundle\Provider\PRedis
-            arguments:
-                - { host: redis.example.com }
-        sqs: #v1
-            class: Riverline\WorkerBundle\Provider\AwsSQS
-            arguments:
-                - { key: xxxxxx, secret: xxxxx }
-                - sqs.eu-west-1.amazonaws.com
-        sqs: #v3
-            class: Riverline\WorkerBundle\Provider\AwsSQSv3
+        sqs:
+            class: eResults\WorkerBundle\Provider\AwsSQS
             arguments:
                 -
                     version: "latest"
@@ -38,29 +27,8 @@ riverline_worker:
                     credentials:
                         key: "xxxxxx"
                         secret: "xxxxxx"
-        gearman:
-            class: Riverline\WorkerBundle\Provider\Gearman
-            arguments:
-                - [ gearman1.example.com, gearman2.examplet.com ]
-        amqp: ## WIP
-            class: Riverline\WorkerBundle\Provider\AMQP
-        semaphore:
-            class: Riverline\WorkerBundle\Provider\Semaphore
-        activemq:
-            class: Riverline\WorkerBundle\Provider\ActiveMQ
-            arguments:
-                - tcp://localhost:61613
-                - login
-                - passcode
-                - false        # Boolean indicates if message is persistent
-                - false        # Boolean indicates if broker statistics plugin is enabled http://activemq.apache.org/statisticsplugin.html
-                - true         # Boolean indicates if sync mode is enabled
-
     queues:
-        queue1:
-            name: ThisIsMyQueue
-            provider: predis
-        queue2:
+        my_queue:
             name: https://eu-west-1.queue.amazonaws.com/xxxxxx/xxxx
             provider: sqs
 ```
@@ -72,10 +40,10 @@ You can access any configured provider or queue through the Symfony Container
 ```php
 <?php
 
-$provider = $this->get('riverline_worker.provider.predis');
+$provider = $this->get('eresults_worker.provider.predis');
 $provider->put('ThisIsMyQueue', 'Hello World');
 
-$queue = $this->get('riverline_worker.queue.queue1');
+$queue = $this->get('eresults_worker.queue.queue1');
 echo $queue->count()." item(s) in the queue";
 ```
 
@@ -92,8 +60,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Riverline\WorkerBundle\Command\Worker;
-use Riverline\WorkerBundle\Command\WorkerControlCodes;
+use eResults\WorkerBundle\Command\Worker;
+use eResults\WorkerBundle\Command\WorkerControlCodes;
 
 class DemoWorkerCommand extends Worker
 {

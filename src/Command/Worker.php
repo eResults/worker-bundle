@@ -1,6 +1,6 @@
 <?php
 
-namespace Riverline\WorkerBundle\Command;
+namespace eResults\WorkerBundle\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

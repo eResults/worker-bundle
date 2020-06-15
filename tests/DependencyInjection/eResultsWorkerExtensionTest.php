@@ -1,18 +1,18 @@
 <?php
 
-namespace Riverline\WorkerBundle\DependencyInjection;
+namespace eResults\WorkerBundle\DependencyInjection;
 
 use PHPUnit\Framework\TestCase;
-use Riverline\WorkerBundle\Provider\Mock;
+use eResults\WorkerBundle\Provider\Mock;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class RiverlineWorkerExtensionTest extends TestCase
+class eResultsWorkerExtensionTest extends TestCase
 {
     public function testServiceConstruction()
     {
         $container = new ContainerBuilder();
         $config = [
-            'riverline_worker' => [
+            'eresults_worker' => [
                 'providers' => [
                     'mock' => [
                         'class' => Mock::class,
@@ -27,19 +27,19 @@ class RiverlineWorkerExtensionTest extends TestCase
             ],
         ];
 
-        $extension = new RiverlineWorkerExtension();
+        $extension = new eResultsWorkerExtension();
         $extension->load($config, $container);
 
         $container->compile();
 
         $this->assertInstanceOf(
             Mock::class,
-            $container->get('riverline_worker.provider.mock')
+            $container->get('eresults_worker.provider.mock')
         );
 
         $this->assertInstanceOf(
-            'Riverline\WorkerBundle\Queue\Queue',
-            $container->get('riverline_worker.queue.test')
+            'eResults\WorkerBundle\Queue\Queue',
+            $container->get('eresults_worker.queue.test')
         );
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Riverline\WorkerBundle\DependencyInjection;
+namespace eResults\WorkerBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -12,7 +12,7 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder('riverline_worker');
+        $treeBuilder = new TreeBuilder('eresults_worker');
         $treeBuilder->getRootNode()
             ->children()
                 ->arrayNode('providers')

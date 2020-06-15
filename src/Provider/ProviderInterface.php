@@ -1,12 +1,12 @@
 <?php
 
-namespace Riverline\WorkerBundle\Provider;
+namespace eResults\WorkerBundle\Provider;
 
-use Riverline\WorkerBundle\Exception\NotImplementedFeatureException;
+use eResults\WorkerBundle\Exception\NotImplementedFeatureException;
 
 /**
  * Interface ProviderInterface
- * @package Riverline\WorkerBundle\Provider
+ * @package eResults\WorkerBundle\Provider
  */
 interface ProviderInterface
 {
@@ -28,7 +28,7 @@ interface ProviderInterface
      * @param string $queueName    The queue name
      * @param array  $queueOptions The queue options
      *
-     * @return \Riverline\WorkerBundle\Queue\Queue
+     * @return \eResults\WorkerBundle\Queue\Queue
      * @throws NotImplementedFeatureException
      */
     public function createQueue($queueName, array $queueOptions = []);

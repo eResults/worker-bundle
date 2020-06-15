@@ -1,11 +1,7 @@
 <?php
 
-namespace Riverline\WorkerBundle\Exception;
+namespace eResults\WorkerBundle\Exception;
 
-/**
- * Class NotImplementedFeatureException
- * @package Riverline\WorkerBundle\Exception
- */
 class NotImplementedFeatureException extends \LogicException
 {
 }
