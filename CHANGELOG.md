@@ -14,17 +14,17 @@ CHANGELOG
 1.1.3
 -----
 
- * fix worker-limit option
+ * fix workload-limit option
 
 1.1.2
 -----
 
- * onShutdown function is now called when worker-limit or memory-limit are reached
+ * onShutdown function is now called when workload-limit or memory-limit are reached
 
 1.1.1
 -----
 
- * fix limits (worker-limit /memory-limit) bugs
+ * fix limits (workload-limit /memory-limit) bugs
 
 1.1.0
 -----

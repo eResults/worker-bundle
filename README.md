@@ -1,8 +1,5 @@
-# README
-
-## What is eResults\WorkerBundle
-
-``eResults\WorkerBundle`` add abstraction to queue providers and allow to create Workers to consume queue workload.
+# WorkerBundle
+``eResults\WorkerBundle`` adds abstraction to queue providers and allow to create Workers to consume queue workload.
 
 ## Requirements
 
@@ -56,12 +53,9 @@ You can easily create Workers
 
 namespace Acme\DemoBundle\Command;
 
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use eResults\WorkerBundle\Command\Worker;
-use eResults\WorkerBundle\Command\WorkerControlCodes;
 
 class DemoWorkerCommand extends Worker
 {
@@ -71,40 +65,59 @@ class DemoWorkerCommand extends Worker
             // Queue name from the configuration
             ->setQueueName('queue1')
 
-            // Inhered Command methods
+            // Or load the queue directly through your own dependency injection
+//            ->setQueue($this->myQueue)
+
+            // Inherited Command methods
             ->setName('demo-worker')
             ->setDescription('Test a worker')
         ;
     }
 
-    protected function executeWorker(InputInterface $input, OutputInterface $output, $workload)
+    protected function doProcess($workload, InputInterface $input, OutputInterface $output): int
     {
         $output->writeln($workload);
 
-        // Stop worker and dot not process other workloads
-        if ($someReasonToStopAndExit)
-        {
-            return WorkerControlCodes::STOP_EXECUTION;
+        // Stop worker when some end condition is reached
+        if ($this->hasSomeReasonToStopAndExit()) {
+            return self::STATE_SHUTDOWN;
         }
 
         // else continue
-        return WorkerControlCodes::CAN_CONTINUE;
+        return self::STATE_READY;
     }
-}
+
+    protected function onException(Exception $e): int
+    {
+        // If an exception occurs, check if the worker can continue running
+        if ($e instanceof MyNonFatalException) {
+            // Log the exception if appropriate
+            // $this->logger->logException($e);
+
+            return self::STATE_READY;
+        }
+
+        return self::STATE_EXCEPTION;
+    }
+ }
 
 ```
 
 Then you can launch your worker like any other command
 
 ```sh
-$ php app/console demo-worker
+$ app/console demo-worker
 Hello World
 ```
 
 You can pass options.
 
 ```sh
-$ php app/console --worker-wait-timeout=60 --worker-limit=10 --memory-limit=128 --worker-exit-on-exception
+$ app/console\
+    --workload-timeout=60\
+    --workload-limit=10\
+    --memory-limit=128\
+    --exit-on-exception
 ```
 
 This command wait 60 seconds for a workload from the queue, will process a maximum of 10 workloads or exit when usaed memory exceed 128Mb and exit if the ``executeWorker()`` throw an exception.

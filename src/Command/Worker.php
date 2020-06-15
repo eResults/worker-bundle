@@ -2,136 +2,118 @@
 
 namespace eResults\WorkerBundle\Command;
 
+use Exception;
+use LogicException;
+use eResults\WorkerBundle\Queue\Queue;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-use Riverline\WorkerBundle\Queue\Queue;
-
-/**
- * Worker base class.
- *
- * @author Romain Cambien <romain@riverline.fr>
- * @author Sebastien Porati <sebastien@riverline.fr>
- */
 abstract class Worker extends Command implements ContainerAwareInterface
 {
-    /**
-     * @var \Symfony\Component\DependencyInjection\ContainerInterface;
-     */
-    private $container;
+    const STATE_READY = 100;
+    const STATE_EXCEPTION = 101;
+    const STATE_MEMORY_LIMIT_REACHED = 102;
+    const STATE_QUEUE_EMPTY = 103;
+    const STATE_SHUTDOWN = 104;
+    const STATE_WORKLOAD_LIMIT_REACHED = 105;
 
-    /**
-     * @var \Symfony\Component\Console\Input\InputInterface
-     */
-    private $input;
-
-    /**
-     * @var \Symfony\Component\Console\Output\OutputInterface
-     */
-    private $output;
-
-    /**
-     * @var string
-     */
-    private $queueName;
-
-    /**
-     * @var int
-     */
-    private $limit = 0;
-
-    /**
-     * @var int
-     */
-    private $memoryLimit = 0;
-
-    /**
-     * @var int
-     */
-    private $workloadProcessed = 0;
-
-    /**
-     * @var Queue
-     */
-    protected $queue;
+    private ContainerInterface $container;
+    private InputInterface $input;
+    private OutputInterface $output;
+    private int $limit = 0;
+    private int $memoryLimit = 0;
+    private int $workloadsProcessed = 0;
+    private ?Queue $queue;
+    private ?string $queueName;
 
     final protected function configure()
     {
-        // Generic Options
         $this
-            ->addOption('worker-wait-timeout', null, InputOption::VALUE_REQUIRED, 'Number of second to wait for a new workload', 0)
-            ->addOption('worker-limit', null, InputOption::VALUE_REQUIRED, 'Number of workload to process', 0)
+            ->addOption('exit-on-exception', null, InputOption::VALUE_NONE, 'Stop the worker on exception')
             ->addOption('memory-limit', null, InputOption::VALUE_REQUIRED, 'Memory limit (Mb)', 0)
-            ->addOption('worker-exit-on-exception', null, InputOption::VALUE_NONE, 'Stop the worker on exception')
+            ->addOption('workload-limit', null, InputOption::VALUE_REQUIRED, 'Number of workload to process', 0)
+            ->addOption('workload-timeout', null, InputOption::VALUE_REQUIRED, 'Number of second to wait for a new workload', 0)
         ;
 
-        $this->configureWorker();
+        $this->doConfigure();
 
-        if (!$this->queueName) {
-            throw new \LogicException('The worker queue name cannot be empty.');
+        if (!$this->queueName || !$this->queue) {
+            throw new \LogicException('The worker queue must be specified by the setQueueName or setQueue method in your doConfigure method');
         }
     }
 
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
+     *
      * @return int
      */
     final protected function execute(InputInterface $input, OutputInterface $output)
     {
-        while(WorkerControlCodes::CAN_CONTINUE === ($controlCode = $this->canContinueExecution())) {
+        while (self::STATE_READY === ($state = $this->isReady())) {
             $queue = $this->getQueue();
+
             if (null === $queue) {
-                return $this->shutdown(WorkerControlCodes::STOP_EXECUTION);
+                return $this->shutdown(self::STATE_SHUTDOWN);
             }
 
-            $workload = $queue->get($input->getOption('worker-wait-timeout'));
+            $workload = $queue->get($input->getOption('workload-timeout'));
+
             if (null === $workload) {
-                $controlCode = $this->onNoWorkload($queue);
-                if (WorkerControlCodes::CAN_CONTINUE !== $controlCode) {
-                    return $this->shutdown($controlCode);
+                $state = $this->onNoWorkload($queue);
+
+                if (self::STATE_READY !== $state) {
+                    return $this->shutdown($state);
                 }
 
                 continue;
             }
 
-            $this->workloadProcessed++;
+            $this->workloadsProcessed++;
 
             try {
-                $controlCode = $this->executeWorker($input, $output, $workload);
-                if (WorkerControlCodes::CAN_CONTINUE !== $controlCode) {
-                    return $this->shutdown($controlCode);
+                $state = $this->doProcess($workload, $input, $output);
+
+                if (self::STATE_READY !== $state) {
+                    return $this->shutdown($state);
                 }
-            } catch (\Exception $e) {
-                $controlCode = $this->onException($queue, $e);
-                if (WorkerControlCodes::CAN_CONTINUE !== $controlCode) {
-                    return $this->shutdown($controlCode);
+            } catch (Exception $e) {
+                $state = $this->onException($queue, $e);
+
+                if (self::STATE_READY !== $state) {
+                    return $this->shutdown($state);
                 }
-                if ($input->getOption('worker-exit-on-exception')) {
-                    return $this->shutdown(WorkerControlCodes::EXIT_ON_EXCEPTION);
+
+                if ($input->getOption('exit-on-exception')) {
+                    return $this->shutdown(self::STATE_EXCEPTION);
                 }
             }
         }
 
-        return $this->shutdown($controlCode);
+        $shutdownState = $this->shutdown($state);
+
+        if ($shutdownState === self::STATE_SHUTDOWN || $shutdownState === self::STATE_READY) {
+            return 0;
+        }
+
+        return $shutdownState;
     }
 
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
      */
-    protected function initialize(InputInterface $input, OutputInterface $output)
+    final protected function initialize(InputInterface $input, OutputInterface $output): void
     {
-        $this->input    = $input;
-        $this->output   = $output;
+        $this->input = $input;
+        $this->output = $output;
 
         // Limits
-        $this->limit       = intval($input->getOption('worker-limit'));
+        $this->limit = intval($input->getOption('workload-limit'));
         $this->memoryLimit = intval($input->getOption('memory-limit'));
     }
 
@@ -142,166 +124,126 @@ abstract class Worker extends Command implements ContainerAwareInterface
      *   - memory limit reached
      *   - custom limit reached
      *
-     * @return boolean
+     * @return int
      */
-    protected function canContinueExecution()
+    private function isReady(): int
     {
-        // Workload limit
-        if ($this->limit > 0 && $this->workloadProcessed >= $this->limit) {
-            return WorkerControlCodes::WORKLOAD_LIMIT_REACHED;
+        if ($this->limit > 0 && $this->workloadsProcessed >= $this->limit) {
+            return self::STATE_WORKLOAD_LIMIT_REACHED;
         }
 
-        // Memory limit
-        $memory = memory_get_usage(true) / 1024 / 1024;
-        if ($this->memoryLimit > 0 && $memory > $this->memoryLimit) {
-            return WorkerControlCodes::MEMORY_LIMIT_REACHED;
+        if ($this->memoryLimit > 0) {
+            $memoryUsage = memory_get_usage(true) / 1024 / 1024;
+
+            if ($memoryUsage > $this->memoryLimit) {
+                return self::STATE_MEMORY_LIMIT_REACHED;
+            }
         }
 
-        return WorkerControlCodes::CAN_CONTINUE;
+        return self::STATE_READY;
     }
 
-    protected function configureWorker()
+    protected function doConfigure(): void
     {
-
     }
 
     /**
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @param mixed $workload
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     *
      * @return int
      */
-    protected function executeWorker(InputInterface $input, OutputInterface $output, $workload)
+    protected function doProcess($workload, InputInterface $input, OutputInterface $output): int
     {
-        throw new \LogicException('You must override the executeWorker() method in the concrete worker class.');
+        throw new LogicException('You must override the doProcess() method in the concrete worker class.');
     }
 
     /**
-     * Called when Exception is catched during workload processing.
+     * Called when Exception is caught during workload processing.
      *
-     * @param \Riverline\WorkerBundle\Queue\Queue $queue
-     * @param \Exception                          $exception
+     * @param Queue $queue
+     * @param Exception $exception
+     *
      * @return int
      */
-    protected function onException(Queue $queue, \Exception $exception)
+    protected function onException(Exception $exception): int
     {
-        $this->getOutput()->writeln("Exception during workload processing for queue {$queue->getName()}. Class=".get_class($exception).". Message={$exception->getMessage()}. Code={$exception->getCode()}");
+        $queue = $this->getQueue();
+        $this->output->writeln("Exception during workload processing for queue {$queue->getName()}. Class=".get_class($exception).". Message={$exception->getMessage()}. Code={$exception->getCode()}");
 
-        return WorkerControlCodes::STOP_EXECUTION;
+        return self::STATE_EXCEPTION;
     }
 
     /**
      * Called when no workload was provided from the queue.
      *
-     * @param \Riverline\WorkerBundle\Queue\Queue $queue
+     * @param Queue $queue
+     *
      * @return int
      */
-    protected function onNoWorkload(Queue $queue)
+    protected function onNoWorkload(Queue $queue): int
     {
-        return WorkerControlCodes::NO_WORKLOAD;
-    }
-
-    /**
-     * Called before exit.
-     *
-     * @param int $controlCode
-     * @return int Used as command exit code
-     */
-    protected function onShutdown($controlCode)
-    {
-        return $controlCode;
-    }
-
-    /**
-     * @return ContainerInterface
-     */
-    protected function getContainer()
-    {
-        if (null === $this->container) {
-            $this->container = $this->getApplication()->getKernel()->getContainer();
-        }
-
-        return $this->container;
-    }
-
-    /**
-     * Return command input interface.
-     *
-     * @return \Symfony\Component\Console\Input\InputInterface
-     */
-    protected function getInput()
-    {
-        return $this->input;
-    }
-
-    /**
-     * Return command output interface - compatibily layer
-     * @deprecated
-     * @return \Symfony\Component\Console\Output\OutputInterface
-     */
-    protected function getOuput()
-    {
-        return $this->getOutput();
-    }
-
-    /**
-     * Return command output interface.
-     *
-     * @return \Symfony\Component\Console\Output\OutputInterface
-     */
-    protected function getOutput()
-    {
-        return $this->output;
+        return self::STATE_QUEUE_EMPTY;
     }
 
     /**
      * Get the queue
      * @return Queue
      */
-    protected function getQueue()
+    final protected function getQueue(): Queue
     {
         if ($this->queue === null) {
-            $this->queue = $this->getContainer()->get('riverline_worker.queue.'.$this->queueName);
+            $this->queue = $this->container->get('eresults_worker.queue.'.$this->queueName);
         }
+
         return $this->queue;
     }
 
     /**
-     * @see ContainerAwareInterface::setContainer()
+     * @param int $controlCode
+     *
+     * @return int
      */
+    final private function shutdown(int $controlCode): int
+    {
+        return $this->onShutdown($controlCode);
+    }
+
+    /**
+     * Called before exit.
+     *
+     * @param int $controlCode
+     *
+     * @return int Used as command exit code
+     */
+    protected function onShutdown(int $controlCode): int
+    {
+        return $controlCode;
+    }
+
+    /** @inheritDoc */
     public function setContainer(ContainerInterface $container = null)
     {
         $this->container = $container;
     }
 
-    /**
-     * @return string
-     */
-    protected function getQueueName()
+    public function setQueue(Queue $queue): void
     {
-        return $this->queueName;
+        $this->queue = $queue;
+        $this->queueName = null;
     }
 
     /**
      * @param string $queueName
-     * @return Worker
+     *
+     * @return $this
      */
-    public function setQueueName($queueName)
+    public function setQueueName(string $queueName)
     {
+        $this->queue = null;
         $this->queueName = $queueName;
 
         return $this;
     }
-
-    /**
-     * @param int $controlCode
-     * @return int
-     */
-    private function shutdown($controlCode)
-    {
-        $exitCode = $this->onShutdown($controlCode);
-
-        return $exitCode;
-    }
-
 }
