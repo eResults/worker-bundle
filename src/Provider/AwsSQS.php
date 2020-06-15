@@ -10,7 +10,7 @@ use LogicException;
 use Riverline\WorkerBundle\Queue\Queue;
 use RuntimeException;
 
-class AwsSQS extends AbstractBaseProvider
+class AwsSQS extends Provider
 {
     /**
      * @var SqsClient;

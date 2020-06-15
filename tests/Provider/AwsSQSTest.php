@@ -5,15 +5,15 @@ namespace Riverline\WorkerBundle\Provider;
 use PHPUnit\Framework\TestCase;
 use Riverline\WorkerBundle\Queue\Queue;
 
-class AwsSQSv3Test extends TestCase
+class AwsSQSTest extends TestCase
 {
-    private AwsSQSv3 $provider;
+    private AwsSQS $provider;
 
-    private const QUEUE_NAME = 'WorkerBundleTest_v3';
+    private const QUEUE_NAME = 'WorkerBundleTest_SQS';
 
     public function setUp(): void
     {
-        $this->provider = new AwsSQSv3([
+        $this->provider = new AwsSQS([
             'credentials' => [
                 'key' => '',
                 'secret' => '',

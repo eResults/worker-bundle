@@ -4,11 +4,7 @@ namespace Riverline\WorkerBundle\Provider;
 
 use Riverline\WorkerBundle\Exception\NotImplementedFeatureException;
 
-/**
- * Class AbstractBaseProvider
- * @package Riverline\WorkerBundle\Provider
- */
-abstract class AbstractBaseProvider implements ProviderInterface
+abstract class Provider implements ProviderInterface
 {
     /**
      * {@inheritdoc}

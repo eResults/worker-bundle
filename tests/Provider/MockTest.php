@@ -4,25 +4,19 @@ namespace Riverline\WorkerBundle\Provider;
 
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class MockupTest
- * @package Riverline\WorkerBundle\Provider
- */
-class MockupTest extends TestCase
+class MockTest extends TestCase
 {
-    /**
-     * @var Semaphore
-     */
-    private $provider;
+    private Mock $provider;
 
     public function setUp(): void
     {
-        $this->provider = new Mockup();
+        $this->provider = new Mock();
     }
 
     public function testPutArray()
     {
         $this->provider->put('test', ['workload' => 'heavy']);
+        $this->assertTrue(true);
     }
 
     public function testCount()

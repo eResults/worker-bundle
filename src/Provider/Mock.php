@@ -4,28 +4,24 @@ namespace Riverline\WorkerBundle\Provider;
 
 use Riverline\WorkerBundle\Queue\Queue;
 
-class Mockup implements ProviderInterface
+class Mock implements ProviderInterface
 {
-    static protected $queues;
-
-    /**
-     * @var array
-     */
-    static protected $queueOptions = array();
+    static protected array $queues;
+    static protected array $queueOptions = [];
 
     public function put($queueName, $workload)
     {
         if (isset(self::$queues[$queueName])) {
             self::$queues[$queueName][] = $workload;
         } else {
-            self::$queues[$queueName] = array($workload);
+            self::$queues[$queueName] = [$workload];
         }
     }
 
     public function get($queueName, $timeout = null)
     {
         if (null !== $timeout) {
-            throw new \LogicException("Array provider doesn't support timeout");
+            throw new \LogicException('Mock provider doesn\'t support timeout');
         }
 
         if (isset(self::$queues[$queueName]) && count(self::$queues[$queueName])) {
@@ -49,7 +45,7 @@ class Mockup implements ProviderInterface
      */
     public function multiPut($queueName, array $workloads)
     {
-        foreach($workloads as $workload) {
+        foreach ($workloads as $workload) {
             $this->put($queueName, $workload);
         }
     }
@@ -57,10 +53,10 @@ class Mockup implements ProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function createQueue($queueName, array $queueOptions = array())
+    public function createQueue($queueName, array $queueOptions = [])
     {
-        if (! isset(self::$queues[$queueName])) {
-            self::$queues[$queueName] = array();
+        if (!isset(self::$queues[$queueName])) {
+            self::$queues[$queueName] = [];
         }
 
         return new Queue($queueName, $this);
@@ -85,7 +81,7 @@ class Mockup implements ProviderInterface
     {
         return isset(self::$queueOptions[$queueName])
             ? self::$queueOptions[$queueName]
-            : array();
+            : [];
     }
 
     /**
@@ -107,7 +103,7 @@ class Mockup implements ProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function updateQueue($queueName, array $queueOptions = array())
+    public function updateQueue($queueName, array $queueOptions = [])
     {
         self::$queueOptions[$queueName] = $queueOptions;
     }

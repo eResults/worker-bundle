@@ -3,6 +3,7 @@
 namespace Riverline\WorkerBundle\DependencyInjection;
 
 use PHPUnit\Framework\TestCase;
+use Riverline\WorkerBundle\Provider\Mock;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class RiverlineWorkerExtensionTest extends TestCase
@@ -14,7 +15,7 @@ class RiverlineWorkerExtensionTest extends TestCase
             'riverline_worker' => [
                 'providers' => [
                     'mock' => [
-                        'class' => 'Riverline\WorkerBundle\Provider\Mockup',
+                        'class' => Mock::class,
                     ],
                 ],
                 'queues' => [
@@ -32,7 +33,7 @@ class RiverlineWorkerExtensionTest extends TestCase
         $container->compile();
 
         $this->assertInstanceOf(
-            'Riverline\WorkerBundle\Provider\Mockup',
+            Mock::class,
             $container->get('riverline_worker.provider.mock')
         );
 

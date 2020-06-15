@@ -8,23 +8,21 @@ class Queue
 {
     /**
      * The queue name
-     * @var string
      */
-    protected $name;
+    protected string $name;
 
     /**
      * The queue provider
-     * @var ProviderInterface
      */
-    protected $provider;
+    protected ProviderInterface $provider;
 
     /**
      * @param string $name The queue name
-     * @param \Riverline\WorkerBundle\Provider\ProviderInterface $provider The queue provider
+     * @param ProviderInterface $provider The queue provider
      */
     public function __construct($name, ProviderInterface $provider)
     {
-        $this->name     = $name;
+        $this->name = $name;
         $this->provider = $provider;
     }
 
@@ -48,6 +46,7 @@ class Queue
 
     /**
      * Add workloads in the queue
+     *
      * @param array $workloads
      */
     public function multiPut(array $workloads)
@@ -57,6 +56,7 @@ class Queue
 
     /**
      * Add a workload in the queue
+     *
      * @param $workload
      */
     public function put($workload)
@@ -66,10 +66,12 @@ class Queue
 
     /**
      * Get a workload from the queue
+     *
      * @param int|null $timeout
+     *
      * @return mixed|null
      */
-    public function get ($timeout = null)
+    public function get($timeout = null)
     {
         return $this->provider->get($this->name, $timeout);
     }
