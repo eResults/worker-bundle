@@ -10,6 +10,11 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 class eResultsWorkerExtension extends Extension
 {
+    public function getAlias()
+    {
+        return 'eresults_worker';
+    }
+
     /** @inheritDoc */
     public function load(array $configs, ContainerBuilder $container)
     {
