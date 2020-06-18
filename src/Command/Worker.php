@@ -162,8 +162,8 @@ abstract class Worker extends Command implements ContainerAwareInterface
     /**
      * Called when Exception is caught during workload processing.
      *
-     * @param Queue $queue
      * @param Exception $exception
+     * @param mixed $workload
      *
      * @return int
      */

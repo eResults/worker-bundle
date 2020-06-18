@@ -2,13 +2,13 @@
 ``eResults\WorkerBundle`` adds abstraction to queue providers and allow to create Workers to consume queue workload.
 
 ## Requirements
-
 * PHP >=7.4
 * Symfony ^4.4|^5.0
 
 ## Installation
-
-``eResults\WorkerBundle`` is compatible with composer and any prs-0 autoloader
+```bash
+composer req eresults/worker-bundle
+```
 
 ## Configuration
 
