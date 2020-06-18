@@ -37,10 +37,10 @@ You can access any configured provider or queue through the Symfony Container
 ```php
 <?php
 
-$provider = $this->get('eresults_worker.provider.predis');
+$provider = $this->get('eresults_worker.provider.sqs');
 $provider->put('ThisIsMyQueue', 'Hello World');
 
-$queue = $this->get('eresults_worker.queue.queue1');
+$queue = $this->get('eresults_worker.queue.my_queue');
 echo $queue->count()." item(s) in the queue";
 ```
 
@@ -87,7 +87,7 @@ class DemoWorkerCommand extends Worker
         return self::STATE_READY;
     }
 
-    protected function onException(Exception $e): int
+    protected function onException(Exception $e, $workload): int
     {
         // If an exception occurs, check if the worker can continue running
         if ($e instanceof MyNonFatalException) {
@@ -120,4 +120,4 @@ $ app/console\
     --exit-on-exception
 ```
 
-This command wait 60 seconds for a workload from the queue, will process a maximum of 10 workloads or exit when usaed memory exceed 128Mb and exit if the ``executeWorker()`` throw an exception.
+This command wait 60 seconds for a workload from the queue, will process a maximum of 10 workloads or exit when used memory exceeds 128Mb and exit if the ``executeWorker()`` throw an exception.

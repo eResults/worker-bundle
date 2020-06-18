@@ -82,7 +82,7 @@ abstract class Worker extends Command implements ContainerAwareInterface
                     return $this->shutdown($state);
                 }
             } catch (Exception $e) {
-                $state = $this->onException($queue, $e);
+                $state = $this->onException($e, $workload);
 
                 if (self::STATE_READY !== $state) {
                     return $this->shutdown($state);
@@ -167,7 +167,7 @@ abstract class Worker extends Command implements ContainerAwareInterface
      *
      * @return int
      */
-    protected function onException(Exception $exception): int
+    protected function onException(Exception $exception, $workload): int
     {
         $queue = $this->getQueue();
         $this->output->writeln("Exception during workload processing for queue {$queue->getName()}. Class=".get_class($exception).". Message={$exception->getMessage()}. Code={$exception->getCode()}");
