@@ -20,7 +20,7 @@ class AwsSQSTest extends TestCase
             ],
             'region' => 'us-east-1',
             'version' => 'latest',
-            'endpoint' => 'http://localhost:4566',
+            'endpoint' => 'http://aws:4566',
         ]);
     }
 

@@ -8,7 +8,7 @@ before_script:
 
 script:
   - docker-compose exec --user $UID app composer update
-  - docker-compose exec --user $UID app vendor/bin/phpunit --debug
+  - docker-compose exec --user $UID app vendor/bin/phpunit
 
 after_script:
   - docker-compose down --rmi local -v

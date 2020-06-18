@@ -1,4 +1,4 @@
-FROM php:5-cli
+FROM php:7.4-cli
 
 MAINTAINER eResults
 
@@ -10,12 +10,9 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && chmod a+x /usr/local/bin/composer
 
 # Install php extensions
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    zlib1g-dev
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends libzip-dev
 
 # PHP EXTENSIONS
-RUN apt-get install -y libgearman-dev \
-    && pecl install gearman \
-    && docker-php-ext-enable gearman \
-    && docker-php-ext-install -j$(nproc) zip sysvmsg sysvshm \
+RUN docker-php-ext-install -j$(nproc) zip sysvmsg sysvshm \
     && docker-php-source delete

@@ -15,7 +15,4 @@ services:
     image: localstack/localstack
     environment:
       - SERVICES=sqs
-      - HOSTNAME_EXTERNAL=127.0.0.1
-    ports:
-      - 4566:4566
-      - 4576:4576
+      - HOSTNAME_EXTERNAL=aws
