@@ -41,7 +41,7 @@ abstract class Worker extends Command implements ContainerAwareInterface
 
         $this->doConfigure();
 
-        if (!$this->queueName || !$this->queue) {
+        if (!$this->queueName && !$this->queue) {
             throw new \LogicException('The worker queue must be specified by the setQueueName or setQueue method in your doConfigure method');
         }
     }
