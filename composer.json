@@ -21,7 +21,7 @@
     ],
     "homepage": "https://github.com/eresults/worker-bundle",
     "require": {
-        "php": ">=7.4",
+        "php": "^7.4|^8.0",
         "ext-zlib": "*",
         "symfony/console": "^4.0|^5.0",
         "symfony/dependency-injection": "^4.0|^5.0",
