@@ -205,7 +205,7 @@ abstract class Worker extends Command implements ContainerAwareInterface
      *
      * @return int
      */
-    final private function shutdown(int $controlCode): int
+    private function shutdown(int $controlCode): int
     {
         return $this->onShutdown($controlCode);
     }
